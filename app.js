@@ -1,13 +1,59 @@
-let selectedLevel = "Professional";
+let selectedLevel = localStorage.getItem("passCscSelectedLevel") || "Professional";
 let current = 0;
 let answers = {};
 let activeQuestions = [];
 let activeMode = "Diagnostic";
 let lastWeakSkill = "Percentage";
-const DIAGNOSTIC_QUESTION_COUNT = 11;
+const DIAGNOSTIC_QUESTION_COUNT = 15;
 const PAYMENT_STORE_KEY = "passCscPayments";
 const ADMIN_PASSWORD = "PassCSCAdmin2026";
 let lastSubmittedPayment = null;
+const examCoverage = {
+ Professional:{
+  items:170,
+  time:"3 hours 10 minutes",
+  diagnosticPlan:[
+   {name:"Verbal Ability",count:4},
+   {name:"Numerical Ability",count:4},
+   {name:"Analytical Ability",count:4},
+   {name:"General Information",count:3}
+  ],
+  mockPlan:[
+   {name:"Verbal Ability",count:45},
+   {name:"Numerical Ability",count:40},
+   {name:"Analytical Ability",count:45},
+   {name:"General Information",count:40}
+  ],
+  categories:[
+   {name:"Verbal Ability",topics:["English and Filipino grammar","Vocabulary, synonyms, antonyms, and context clues","Reading comprehension using main idea, details, inference, tone, and purpose","Analogy and paragraph organization"]},
+   {name:"Numerical Ability",topics:["Basic arithmetic, fractions, decimals, percentages, and order of operations","Ratio and proportion, percent change, and word problems","Number series, sequences, data summary, and measurements"]},
+   {name:"Analytical Ability",topics:["Syllogism and logical reasoning","Data interpretation from tables, charts, and graphs","Problem solving, pattern recognition, and abstract reasoning"]},
+   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]}
+  ]
+ },
+ Subprofessional:{
+  items:165,
+  time:"2 hours 40 minutes",
+  diagnosticPlan:[
+   {name:"Verbal Ability",count:4},
+   {name:"Numerical Ability",count:4},
+   {name:"Clerical Ability",count:4},
+   {name:"General Information",count:3}
+  ],
+  mockPlan:[
+   {name:"Verbal Ability",count:45},
+   {name:"Numerical Ability",count:40},
+   {name:"Clerical Ability",count:40},
+   {name:"General Information",count:40}
+  ],
+  categories:[
+   {name:"Verbal Ability",topics:["English and Filipino grammar","Vocabulary, synonyms, antonyms, and context clues","Reading comprehension using main idea, details, inference, tone, and purpose","Analogy and paragraph organization"]},
+   {name:"Numerical Ability",topics:["Basic arithmetic, fractions, decimals, percentages, and order of operations","Ratio and proportion, percent change, and word problems","Number series, sequences, data summary, and measurements"]},
+   {name:"Clerical Ability",topics:["Alphabetical filing, indexing, and arranging names","Coding and decoding office records","Spelling of common words and work terms","Checking and comparing names, numbers, codes, and entries"]},
+   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]}
+  ]
+ }
+};
 
 const questions = [
  {cat:"Verbal Ability",q:"Choose the word closest in meaning to METICULOUS.",choices:["Careless","Thorough","Impatient","Ordinary"],a:1,skill:"Vocabulary",tech:"Meticulous means very careful and precise. Think: 'meticulous = detailed/thorough.'"},
@@ -65,38 +111,82 @@ function randomizeQuestion(q){
    a:choices.findIndex(choice=>choice.index===q.a)
   };
 }
-function buildRandomizedQuestions(count=DIAGNOSTIC_QUESTION_COUNT){
- return shuffleList(questions).slice(0,count).map(randomizeQuestion);
-}
-function getMockItemCount(){
- return selectedLevel==="Subprofessional"?165:170;
+function getExamCoverage(){
+ return examCoverage[selectedLevel] || examCoverage.Professional;
 }
 function getLevelQuestionPool(){
- return questions.filter(q=>{
-  if(selectedLevel==="Subprofessional") return q.cat!=="Analytical Ability";
-  return q.cat!=="Clerical Ability";
- });
+ const allowedCategories=getExamCoverage().categories.map(category=>category.name);
+ return questions.filter(q=>allowedCategories.includes(q.cat));
 }
-function buildMockExam(count=getMockItemCount()){
- const pool=getLevelQuestionPool();
- const exam=[];
- while(exam.length<count){
-  exam.push(...shuffleList(pool));
+function takeCategoryQuestions(categoryName,count){
+ const pool=questions.filter(q=>q.cat===categoryName);
+ const picked=[];
+ if(!pool.length) return picked;
+ while(picked.length<count){
+  picked.push(...shuffleList(pool));
  }
- return exam.slice(0,count).map(randomizeQuestion);
+ return picked.slice(0,count);
+}
+function buildQuestionsFromPlan(plan){
+ const plannedQuestions=plan.flatMap(section=>takeCategoryQuestions(section.name,section.count));
+ return shuffleList(plannedQuestions).map(randomizeQuestion);
+}
+function buildRandomizedQuestions(count=DIAGNOSTIC_QUESTION_COUNT){
+ return shuffleList(getLevelQuestionPool()).slice(0,count).map(randomizeQuestion);
+}
+function buildDiagnosticQuestions(){
+ return buildQuestionsFromPlan(getExamCoverage().diagnosticPlan);
+}
+function getMockItemCount(){
+ return getExamCoverage().items;
+}
+function buildMockExam(){
+ return buildQuestionsFromPlan(getExamCoverage().mockPlan);
 }
 function buildQuestionSet(filter){
- let pool=[...questions];
- if(filter==="mock") return buildMockExam(getMockItemCount());
+ let pool=getLevelQuestionPool();
+ if(filter==="mock") return buildMockExam();
  if(filter==="mixed") return buildRandomizedQuestions(8);
  if(filter){
-  const directMatches=questions.filter(q=>q.skill===filter || q.cat===filter);
+  const levelPool=getLevelQuestionPool();
+  const directMatches=levelPool.filter(q=>q.skill===filter || q.cat===filter);
   const directCategories=[...new Set(directMatches.map(q=>q.cat))];
-  const relatedMatches=questions.filter(q=>directCategories.includes(q.cat) && !directMatches.includes(q));
+  const relatedMatches=levelPool.filter(q=>directCategories.includes(q.cat) && !directMatches.includes(q));
   pool=[...directMatches,...relatedMatches];
  }
- if(!pool.length) pool=[...questions];
+ if(!pool.length) pool=getLevelQuestionPool();
  return shuffleList(pool).slice(0,Math.min(8,pool.length)).map(randomizeQuestion);
+}
+function renderCoverageBlock(titleId,metaId,detailsId){
+ const coverage=getExamCoverage();
+ const title=document.getElementById(titleId);
+ const meta=document.getElementById(metaId);
+ const details=document.getElementById(detailsId);
+ if(title) title.textContent=selectedLevel+" CSC coverage";
+ if(meta) meta.textContent=coverage.items+" items • "+coverage.time;
+ if(!details) return;
+ details.innerHTML=coverage.categories.map(category=>{
+  const mockCount=coverage.mockPlan.find(item=>item.name===category.name)?.count || 0;
+  const diagnosticCount=coverage.diagnosticPlan.find(item=>item.name===category.name)?.count || 0;
+  const topics=category.topics.map(topic=>`<li>${topic}</li>`).join("");
+  return `<div class="coverage-card"><small>${diagnosticCount} diagnostic • ${mockCount} mock items</small><h4>${category.name}</h4><ul>${topics}</ul></div>`;
+ }).join("");
+}
+function renderCoverageDetails(){
+ renderCoverageBlock('coverageTitle','coverageMeta','coverageDetails');
+ renderCoverageBlock('memberCoverageTitle','memberCoverageMeta','memberCoverageDetails');
+ const mockMeta=document.getElementById('mockExamMeta');
+ if(mockMeta) mockMeta.textContent=selectedLevel+" • "+getExamCoverage().items+" items • "+getExamCoverage().time;
+ const abilityTitle=document.getElementById('levelAbilityTitle');
+ const abilityMeta=document.getElementById('levelAbilityMeta');
+ const abilityIcon=document.getElementById('levelAbilityIcon');
+ const isSub=selectedLevel==="Subprofessional";
+ if(abilityTitle) abilityTitle.textContent=isSub?"Clerical Ability Drill":"Analytical Reasoning Drill";
+ if(abilityMeta) abilityMeta.textContent=isSub?"Filing, coding, spelling, checking":"Logic, syllogism, ordering";
+ if(abilityIcon) abilityIcon.textContent=isSub?"CL":"∴";
+}
+function startLevelAbilityDrill(){
+ startDrill(selectedLevel==="Subprofessional"?"Clerical Ability":"Analytical Ability");
 }
 function showScreen(id){
  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
@@ -105,14 +195,16 @@ function showScreen(id){
 }
 function selectLevel(level){
  selectedLevel=level;
+ localStorage.setItem("passCscSelectedLevel",level);
  document.getElementById('diagTitle').textContent=level+' Level Diagnostic';
  document.getElementById('testLevel').textContent=level+' Level';
+ renderCoverageDetails();
  showScreen('diagnosticIntro');
 }
 function startTest(){
- activeMode="Diagnostic";
+ activeMode=selectedLevel+" Diagnostic";
  document.getElementById('testLevel').textContent=selectedLevel+' Level';
- current=0;answers={};activeQuestions=buildRandomizedQuestions();renderQuestion();showScreen('test');
+ current=0;answers={};activeQuestions=buildDiagnosticQuestions();renderQuestion();showScreen('test');
 }
 function startDrill(filter){
  activeMode=filter==="mock"?selectedLevel+" CSC Mock Exam ("+getMockItemCount()+" items)":filter==="mixed"?"Mixed Skill Drill":filter+" Drill";
@@ -286,6 +378,7 @@ function showLearnerDashboard(){
  if(greeting) greeting.textContent="Welcome back, "+email;
  const weak=document.getElementById('memberWeakSkill');
  if(weak) weak.textContent=lastWeakSkill || "Mixed";
+ renderCoverageDetails();
  showScreen('dashboard');
 }
 function logoutLearner(){
@@ -295,6 +388,9 @@ function logoutLearner(){
 }
 function initCustomerPage(){
  if(!document.getElementById('dashboard')) return;
+ document.getElementById('diagTitle').textContent=selectedLevel+' Level Diagnostic';
+ document.getElementById('testLevel').textContent=selectedLevel+' Level';
+ renderCoverageDetails();
  if(localStorage.getItem("passCscCurrentUser")) showLearnerDashboard();
 }
 function openAdmin(){
@@ -372,6 +468,9 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
+
+
 
 
 

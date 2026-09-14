@@ -107,9 +107,9 @@
       <div class="center-wrap narrow">
         <div class="test-badge">FREE DIAGNOSTIC</div>
         <h2 id="diagTitle">Professional Level Diagnostic</h2>
-        <p class="muted">This short demo gives you 11 random questions from a larger question bank. Start again to get a different set.</p>
+        <p class="muted">This diagnostic gives you 15 randomized questions based on the official coverage for your selected exam level.</p>
         <div class="info-boxes">
-          <div><b>11</b><span>Random Questions</span></div>
+          <div><b>15</b><span>Coverage-Based Questions</span></div>
           <div><b>4</b><span>Skill Categories</span></div>
           <div><b>80%</b><span>Passing Target</span></div>
         </div>
@@ -121,6 +121,10 @@
           <h3>Reading comprehension technique</h3>
           <p>Use Q-R-A: read the question first, scan the passage for keywords, then answer using only what is stated or clearly implied.</p>
         </div>
+        <div class="coverage-panel compact">
+          <div class="panel-head"><h3 id="coverageTitle">Professional CSC coverage</h3><span id="coverageMeta">170 items • 3 hours 10 minutes</span></div>
+          <div id="coverageDetails" class="coverage-grid"></div>
+        </div>
         <button class="btn btn-primary large full" onclick="startTest()">Begin Diagnostic</button>
       </div>
     </section>
@@ -130,7 +134,7 @@
         <aside class="test-sidebar">
           <div class="eyebrow">DIAGNOSTIC</div>
           <h3 id="testLevel">Professional</h3>
-          <div class="progress-meta"><span>Progress</span><b id="progressText">1 / 11</b></div>
+          <div class="progress-meta"><span>Progress</span><b id="progressText">1 / 15</b></div>
           <div class="progress-bar"><div id="progressFill"></div></div>
           <div class="q-pills" id="qPills"></div>
         </aside>
@@ -220,13 +224,17 @@
         <div class="kpi"><span>Recommended First</span><strong id="memberWeakSkill">Mixed</strong><small>Based on latest diagnostic</small></div>
         <div class="kpi"><span>Goal</span><strong>80%+</strong><small>Mock exam readiness</small></div>
       </div>
+      <div class="coverage-panel dashboard-coverage">
+        <div class="panel-head"><h3 id="memberCoverageTitle">Professional CSC coverage</h3><span id="memberCoverageMeta">170 items • 3 hours 10 minutes</span></div>
+        <div id="memberCoverageDetails" class="coverage-grid"></div>
+      </div>
       <div class="panel">
         <div class="panel-head"><h3>Practice now</h3><span>Unlocked member area</span></div>
         <div class="today-list">
           <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
-          <div><div class="task-icon">∴</div><div><b>Analytical Reasoning Drill</b><span>Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startDrill('Analytical Ability')">Start</button></div>
+          <div><div class="task-icon" id="levelAbilityIcon">∴</div><div><b id="levelAbilityTitle">Analytical Reasoning Drill</b><span id="levelAbilityMeta">Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startLevelAbilityDrill()">Start</button></div>
           <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
-          <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span>Professional 170 items / Subprofessional 165 items</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
+          <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span id="mockExamMeta">Professional • 170 items • 3 hours 10 minutes</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
         </div>
       </div>
     </section>
@@ -323,6 +331,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
