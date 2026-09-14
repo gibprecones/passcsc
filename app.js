@@ -296,8 +296,12 @@ function startTest(){
 }
 function startDrill(filter){
  activeMode=filter==="mock"?selectedLevel+" CSC Mock Exam ("+getMockItemCount()+" items)":filter==="mixed"?"Mixed Skill Drill":filter+" Drill";
+ current=0;
+ answers={};
+ activeQuestions=buildQuestionSet(filter);
  document.getElementById('testLevel').textContent=activeMode;
- current=0;answers={};activeQuestions=buildQuestionSet(filter);renderQuestion();showScreen('test');
+ showScreen('test');
+ renderQuestion();
  showToast(activeMode+" started. Questions and choices are randomized.");
 }
 function startRecommendedReview(){
@@ -556,6 +560,7 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
 
 
 
