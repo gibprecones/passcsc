@@ -6,6 +6,7 @@ let activeMode = "Diagnostic";
 let lastWeakSkill = "Percentage";
 const DIAGNOSTIC_QUESTION_COUNT = 11;
 const PAYMENT_STORE_KEY = "passCscPayments";
+const ADMIN_PASSWORD = "PassCSCAdmin2026";
 let lastSubmittedPayment = null;
 
 const questions = [
@@ -258,8 +259,32 @@ function showLearnerDashboard(){
  showScreen('dashboard');
 }
 function openAdmin(){
- showScreen('admin');
+ window.location.href="admin.html";
+}
+function loginAdmin(event){
+ event.preventDefault();
+ const password=document.getElementById('adminPassword').value;
+ if(password!==ADMIN_PASSWORD){
+  showToast("Invalid admin password.");
+  return;
+ }
+ sessionStorage.setItem("passCscAdmin","true");
+ document.getElementById('adminLoginPanel').style.display="none";
+ document.getElementById('adminDashboardPanel').style.display="block";
  renderAdmin();
+}
+function logoutAdmin(){
+ sessionStorage.removeItem("passCscAdmin");
+ document.getElementById('adminLoginPanel').style.display="block";
+ document.getElementById('adminDashboardPanel').style.display="none";
+ document.getElementById('adminPassword').value="";
+}
+function initAdminPage(){
+ if(!document.getElementById('adminLoginPanel')) return;
+ const isAdmin=sessionStorage.getItem("passCscAdmin")==="true";
+ document.getElementById('adminLoginPanel').style.display=isAdmin?"none":"block";
+ document.getElementById('adminDashboardPanel').style.display=isAdmin?"block":"none";
+ if(isAdmin) renderAdmin();
 }
 function renderAdmin(){
  const payments=getPayments();
@@ -307,3 +332,6 @@ function showToast(message){
  clearTimeout(showToast.timer);
  showToast.timer=setTimeout(()=>toast.classList.remove('show'),3200);
 }
+document.addEventListener('DOMContentLoaded',initAdminPage);
+
+

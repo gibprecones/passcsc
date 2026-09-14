@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pass CSC Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="index.html">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-name">Pass CSC</div>
+        <div class="brand-sub">Admin Portal</div>
+      </div>
+    </a>
+    <nav>
+      <a class="nav-btn" href="index.html">Main App</a>
+      <button class="btn btn-secondary small" onclick="logoutAdmin()">Logout</button>
+    </nav>
+  </header>
+
+  <main>
+    <section class="screen active" id="adminLoginPanel">
+      <div class="center-wrap narrow">
+        <div class="eyebrow">ADMIN LOGIN</div>
+        <h2>Payment approval access</h2>
+        <p class="muted">Login here to review payment submissions and approve learner access.</p>
+        <form class="auth-form" onsubmit="loginAdmin(event)">
+          <label>
+            Admin password
+            <input id="adminPassword" type="password" placeholder="Enter admin password" required />
+          </label>
+          <button class="btn btn-primary large full" type="submit">Open Admin Dashboard</button>
+        </form>
+      </div>
+    </section>
+
+    <section class="screen active" id="adminDashboardPanel" style="display:none">
+      <div class="dash-welcome">
+        <div><div class="eyebrow">ADMIN DASHBOARD</div><h2>Payment approvals</h2><p class="muted">Approve submitted payments to activate learner access.</p></div>
+        <button class="btn btn-secondary" onclick="renderAdmin()">Refresh</button>
+      </div>
+      <div class="panel admin-panel">
+        <div class="panel-head"><h3>Payment submissions</h3><span id="adminCount">0 pending</span></div>
+        <div id="adminPayments"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <b>Pass CSC Admin</b><span>Standalone approval portal</span>
+  </footer>
+  <div class="toast" id="toast"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>
