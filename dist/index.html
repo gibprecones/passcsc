@@ -134,6 +134,7 @@
         <aside class="test-sidebar">
           <div class="eyebrow">DIAGNOSTIC</div>
           <h3 id="testLevel">Professional</h3>
+          <div id="examTimer" class="exam-timer hidden"><span>Time left</span><strong id="timerText">02:00:00</strong></div>
           <div class="progress-meta"><span>Progress</span><b id="progressText">1 / 15</b></div>
           <div class="progress-bar"><div id="progressFill"></div></div>
           <div class="q-pills" id="qPills"></div>
@@ -240,13 +241,14 @@
               <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
               <div><div class="task-icon" id="levelAbilityIcon">∴</div><div><b id="levelAbilityTitle">Analytical Reasoning Drill</b><span id="levelAbilityMeta">Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startLevelAbilityDrill()">Start</button></div>
               <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
-              <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span id="mockExamMeta">Professional • 170 items • 3 hours 10 minutes</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
+              <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span id="mockExamMeta">Professional • 170 items • 2-hour practice timer</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
             </div>
           </div>
           <div id="dashboardPractice" class="dashboard-practice">
             <aside class="test-sidebar dashboard-test-sidebar">
               <div class="eyebrow">PRACTICE</div>
               <h3 id="dTestLevel">Select a drill</h3>
+              <div id="dExamTimer" class="exam-timer hidden"><span>Time left</span><strong id="dTimerText">02:00:00</strong></div>
               <div class="progress-meta"><span>Progress</span><b id="dProgressText">0 / 0</b></div>
               <div class="progress-bar"><div id="dProgressFill"></div></div>
               <div class="q-pills" id="dQPills"></div>
@@ -358,6 +360,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

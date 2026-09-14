@@ -5,6 +5,8 @@ let activeQuestions = [];
 let activeMode = "Diagnostic";
 let activeSurface = "public";
 let lastWeakSkill = "Percentage";
+let timerInterval = null;
+let timerRemaining = 0;
 const DIAGNOSTIC_QUESTION_COUNT = 15;
 const PAYMENT_STORE_KEY = "passCscPayments";
 const HISTORY_STORE_KEY = "passCscAttemptHistory";
@@ -21,16 +23,18 @@ const examCoverage = {
    {name:"General Information",count:3}
   ],
   mockPlan:[
-   {name:"Verbal Ability",count:45},
-   {name:"Numerical Ability",count:40},
-   {name:"Analytical Ability",count:45},
-   {name:"General Information",count:40}
+   {name:"Verbal Ability",count:50},
+   {name:"Numerical Ability",count:50},
+   {name:"Analytical Ability",count:30},
+   {name:"General Information",count:20},
+   {name:"EDQ",count:20}
   ],
   categories:[
    {name:"Verbal Ability",topics:["English and Filipino grammar","Vocabulary, synonyms, antonyms, and context clues","Reading comprehension using main idea, details, inference, tone, and purpose","Analogy and paragraph organization"]},
    {name:"Numerical Ability",topics:["Basic arithmetic, fractions, decimals, percentages, and order of operations","Ratio and proportion, percent change, and word problems","Number series, sequences, data summary, and measurements"]},
    {name:"Analytical Ability",topics:["Syllogism and logical reasoning","Data interpretation from tables, charts, and graphs","Problem solving, pattern recognition, and abstract reasoning"]},
-   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]}
+   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]},
+   {name:"EDQ",topics:["Examinee descriptive questionnaire","Practice-only personal information items","Not included in the scored mastery result"]}
   ]
  },
  Subprofessional:{
@@ -43,16 +47,18 @@ const examCoverage = {
    {name:"General Information",count:3}
   ],
   mockPlan:[
-   {name:"Verbal Ability",count:45},
-   {name:"Numerical Ability",count:40},
-   {name:"Clerical Ability",count:40},
-   {name:"General Information",count:40}
+   {name:"Verbal Ability",count:50},
+   {name:"Numerical Ability",count:50},
+   {name:"Clerical Ability",count:30},
+   {name:"General Information",count:15},
+   {name:"EDQ",count:20}
   ],
   categories:[
    {name:"Verbal Ability",topics:["English and Filipino grammar","Vocabulary, synonyms, antonyms, and context clues","Reading comprehension using main idea, details, inference, tone, and purpose","Analogy and paragraph organization"]},
    {name:"Numerical Ability",topics:["Basic arithmetic, fractions, decimals, percentages, and order of operations","Ratio and proportion, percent change, and word problems","Number series, sequences, data summary, and measurements"]},
    {name:"Clerical Ability",topics:["Alphabetical filing, indexing, and arranging names","Coding and decoding office records","Spelling of common words and work terms","Checking and comparing names, numbers, codes, and entries"]},
-   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]}
+   {name:"General Information",topics:["Philippine Constitution, Bill of Rights, citizenship, and branches of government","RA 6713, Data Privacy Act, Ease of Doing Business, and public service laws","Peace, human rights, environment, disaster readiness, and current public issues"]},
+   {name:"EDQ",topics:["Examinee descriptive questionnaire","Practice-only personal information items","Not included in the scored mastery result"]}
   ]
  }
 };
@@ -179,7 +185,14 @@ function generateGeneratedQuestions(){
   const text="CSC-"+code;
   addGeneratedQuestion(list,"Clerical Ability","Which pair is exactly the same?",text+" / "+text,[text+" / CSC-"+(code+1),"C5C-"+code+" / "+text,text+" / CSC-"+String(code).split("").reverse().join("")],"Checking and Comparing","Compare each letter and number from left to right. One changed character makes the pair incorrect.");
  }
- return shuffleList(list);
+ const edqPrompts=[
+  ["How many times have you taken a Civil Service review practice test?",["First time","1 to 2 times","3 to 4 times","5 or more times"]],
+  ["Which review area do you want to improve most?",["Verbal Ability","Numerical Ability","General Information","Time management"]],
+  ["How many hours can you usually review per week?",["Less than 2 hours","2 to 5 hours","6 to 10 hours","More than 10 hours"]],
+  ["Which practice format helps you most?",["Short drills","Full mock exams","Answer explanations","Mixed review"]],
+  ["What is your current exam preparation stage?",["Just starting","Reviewing basics","Taking practice tests","Final review"]]
+ ];
+ for(let r=0;r<260;r++) edqPrompts.forEach(([prompt,choices])=>addGeneratedQuestion(list,"EDQ",prompt,choices[0],choices.slice(1),"Examinee Descriptive Questionnaire","EDQ items are practice-only profile questions. Answer honestly and keep moving so you preserve time for scored items.")); return shuffleList(list);
 }
 function getAllQuestions(){
  if(!generatedQuestions.length) generatedQuestions=generateGeneratedQuestions();
@@ -266,7 +279,7 @@ function renderCoverageDetails(){
  renderCoverageBlock('coverageTitle','coverageMeta','coverageDetails');
  renderCoverageBlock('memberCoverageTitle','memberCoverageMeta','memberCoverageDetails');
  const mockMeta=document.getElementById('mockExamMeta');
- if(mockMeta) mockMeta.textContent=selectedLevel+" • "+getExamCoverage().items+" items • "+getExamCoverage().time;
+ if(mockMeta) mockMeta.textContent=selectedLevel+" • "+getExamCoverage().items+" items • 2-hour practice timer";
  const abilityTitle=document.getElementById('levelAbilityTitle');
  const abilityMeta=document.getElementById('levelAbilityMeta');
  const abilityIcon=document.getElementById('levelAbilityIcon');
@@ -278,7 +291,43 @@ function renderCoverageDetails(){
 function startLevelAbilityDrill(){
  startDrill(selectedLevel==="Subprofessional"?"Clerical Ability":"Analytical Ability");
 }
-function showScreen(id){
+function formatTimer(seconds){
+ const h=String(Math.floor(seconds/3600)).padStart(2,"0");
+ const m=String(Math.floor((seconds%3600)/60)).padStart(2,"0");
+ const s=String(seconds%60).padStart(2,"0");
+ return h+":"+m+":"+s;
+}
+function timerNodes(){
+ return activeSurface==="dashboard"
+  ? {box:document.getElementById('dExamTimer'),text:document.getElementById('dTimerText')}
+  : {box:document.getElementById('examTimer'),text:document.getElementById('timerText')};
+}
+function updateTimerDisplay(){
+ const nodes=timerNodes();
+ if(nodes.text) nodes.text.textContent=formatTimer(timerRemaining);
+ if(nodes.box) nodes.box.classList.toggle('danger',timerRemaining<=600);
+}
+function stopExamTimer(){
+ if(timerInterval) clearInterval(timerInterval);
+ timerInterval=null;
+ document.querySelectorAll('.exam-timer').forEach(timer=>timer.classList.add('hidden'));
+}
+function startExamTimer(){
+ stopExamTimer();
+ timerRemaining=2*60*60;
+ const nodes=timerNodes();
+ if(nodes.box) nodes.box.classList.remove('hidden');
+ updateTimerDisplay();
+ timerInterval=setInterval(()=>{
+  timerRemaining--;
+  updateTimerDisplay();
+  if(timerRemaining<=0){
+   stopExamTimer();
+   showToast("Time is up. Your mock exam has been submitted.");
+   submitTest();
+  }
+ },1000);
+}function showScreen(id){
  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
  document.getElementById(id).classList.add('active');
  window.scrollTo({top:0,behavior:'smooth'});
@@ -295,6 +344,7 @@ function startTest(){
  activeSurface="public";
  activeMode=selectedLevel+" Diagnostic";
  document.getElementById('testLevel').textContent=selectedLevel+' Level';
+ stopExamTimer();
  current=0;answers={};activeQuestions=buildDiagnosticQuestions();renderQuestion();showScreen('test');
 }
 function startDrill(filter){
@@ -303,6 +353,7 @@ function startDrill(filter){
  current=0;
  answers={};
  activeQuestions=buildQuestionSet(filter);
+ if(filter==="mock") startExamTimer(); else stopExamTimer();
  const result=document.getElementById('dashboardResult');
  if(result) result.innerHTML="";
  showLearnerDashboard();
@@ -407,21 +458,25 @@ function prevQuestion(){if(current>0){current--;renderQuestion()}}
 function submitTest(){
  const cats={};
  let correct=0;
+ let scoredTotal=0;
  activeQuestions.forEach((q,i)=>{
+  if(q.cat==="EDQ") return;
+  scoredTotal++;
   if(!cats[q.cat])cats[q.cat]={ok:0,total:0,skills:{}};
   cats[q.cat].total++;
   if(!cats[q.cat].skills[q.skill])cats[q.cat].skills[q.skill]={ok:0,total:0};
   cats[q.cat].skills[q.skill].total++;
   if(answers[i]===q.a){correct++;cats[q.cat].ok++;cats[q.cat].skills[q.skill].ok++}
  });
- const score=Math.round(correct/activeQuestions.length*100);
+ const score=Math.round(correct/Math.max(1,scoredTotal)*100);
  if(activeSurface==="dashboard"){
   const attempt=saveAttemptHistory(score);
   const result=document.getElementById('dashboardResult');
   if(result){
-   result.innerHTML=`<div class="panel-head"><h3>${activeMode} complete</h3><span>${attempt.dateTime}</span></div><div class="status-banner ${score>=80?'status-good':'status-warn'}">Score: ${score}% • ${correct} of ${activeQuestions.length} correct</div>${renderWrongItems(attempt.wrongItems)}`;
+   result.innerHTML=`<div class="panel-head"><h3>${activeMode} complete</h3><span>${attempt.dateTime}</span></div><div class="status-banner ${score>=80?'status-good':'status-warn'}">Score: ${score}% • ${correct} of ${scoredTotal} scored items correct</div>${renderWrongItems(attempt.wrongItems)}`;
    result.scrollIntoView({behavior:'smooth',block:'start'});
   }
+  stopExamTimer();
   showToast("Attempt saved to your dashboard history.");
   return;
  }
@@ -456,6 +511,7 @@ function submitTest(){
     </div>
    </div>`;
  });
+ stopExamTimer();
  showScreen('results');
 }
 function showCheckout(){
@@ -640,6 +696,10 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
+
+
+
 
 
 
