@@ -228,13 +228,40 @@
         <div class="panel-head"><h3 id="memberCoverageTitle">Professional CSC coverage</h3><span id="memberCoverageMeta">170 items • 3 hours 10 minutes</span></div>
         <div id="memberCoverageDetails" class="coverage-grid"></div>
       </div>
-      <div class="panel">
-        <div class="panel-head"><h3>Practice now</h3><span>Unlocked member area</span></div>
-        <div class="today-list">
-          <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
-          <div><div class="task-icon" id="levelAbilityIcon">∴</div><div><b id="levelAbilityTitle">Analytical Reasoning Drill</b><span id="levelAbilityMeta">Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startLevelAbilityDrill()">Start</button></div>
-          <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
-          <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span id="mockExamMeta">Professional • 170 items • 3 hours 10 minutes</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
+      <div class="member-workspace">
+        <aside class="history-panel">
+          <div class="panel-head"><h3>History</h3><span id="historyCount">0 attempts</span></div>
+          <div id="attemptHistory" class="history-list"></div>
+        </aside>
+        <div class="member-main">
+          <div class="panel">
+            <div class="panel-head"><h3>Practice now</h3><span>Unlocked member area</span></div>
+            <div class="today-list">
+              <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
+              <div><div class="task-icon" id="levelAbilityIcon">∴</div><div><b id="levelAbilityTitle">Analytical Reasoning Drill</b><span id="levelAbilityMeta">Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startLevelAbilityDrill()">Start</button></div>
+              <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
+              <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span id="mockExamMeta">Professional • 170 items • 3 hours 10 minutes</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
+            </div>
+          </div>
+          <div id="dashboardPractice" class="dashboard-practice">
+            <aside class="test-sidebar dashboard-test-sidebar">
+              <div class="eyebrow">PRACTICE</div>
+              <h3 id="dTestLevel">Select a drill</h3>
+              <div class="progress-meta"><span>Progress</span><b id="dProgressText">0 / 0</b></div>
+              <div class="progress-bar"><div id="dProgressFill"></div></div>
+              <div class="q-pills" id="dQPills"></div>
+            </aside>
+            <div class="question-panel">
+              <div class="q-top"><span id="dCategoryChip" class="chip">Ready</span><span class="muted" id="dQNumber">Choose a practice set</span></div>
+              <h2 id="dQuestionText">Start a drill or mock exam from the list above.</h2>
+              <div class="choices" id="dChoices"></div>
+              <div class="test-actions">
+                <button class="btn btn-secondary" id="dPrevBtn" onclick="prevQuestion()">Previous</button>
+                <button class="btn btn-primary" id="dNextBtn" onclick="nextQuestion()">Next</button>
+              </div>
+            </div>
+          </div>
+          <div id="dashboardResult" class="panel dashboard-result"></div>
         </div>
       </div>
     </section>
@@ -331,6 +358,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 

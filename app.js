@@ -3,9 +3,11 @@ let current = 0;
 let answers = {};
 let activeQuestions = [];
 let activeMode = "Diagnostic";
+let activeSurface = "public";
 let lastWeakSkill = "Percentage";
 const DIAGNOSTIC_QUESTION_COUNT = 15;
 const PAYMENT_STORE_KEY = "passCscPayments";
+const HISTORY_STORE_KEY = "passCscAttemptHistory";
 const ADMIN_PASSWORD = "PassCSCAdmin2026";
 let lastSubmittedPayment = null;
 const examCoverage = {
@@ -290,42 +292,109 @@ function selectLevel(level){
  showScreen('diagnosticIntro');
 }
 function startTest(){
+ activeSurface="public";
  activeMode=selectedLevel+" Diagnostic";
  document.getElementById('testLevel').textContent=selectedLevel+' Level';
  current=0;answers={};activeQuestions=buildDiagnosticQuestions();renderQuestion();showScreen('test');
 }
 function startDrill(filter){
+ activeSurface="dashboard";
  activeMode=filter==="mock"?selectedLevel+" CSC Mock Exam ("+getMockItemCount()+" items)":filter==="mixed"?"Mixed Skill Drill":filter+" Drill";
  current=0;
  answers={};
  activeQuestions=buildQuestionSet(filter);
- document.getElementById('testLevel').textContent=activeMode;
- showScreen('test');
+ const result=document.getElementById('dashboardResult');
+ if(result) result.innerHTML="";
+ showLearnerDashboard();
  renderQuestion();
- showToast(activeMode+" started. Questions and choices are randomized.");
+ showToast(activeMode+" started inside your dashboard. Questions and choices are randomized.");
 }
 function startRecommendedReview(){
  startDrill(lastWeakSkill);
 }
+function testElement(id){
+ const ids={
+  TestLevel:['testLevel','dTestLevel'],
+  QuestionText:['questionText','dQuestionText'],
+  CategoryChip:['categoryChip','dCategoryChip'],
+  QNumber:['qNumber','dQNumber'],
+  ProgressText:['progressText','dProgressText'],
+  ProgressFill:['progressFill','dProgressFill'],
+  Choices:['choices','dChoices'],
+  PrevBtn:['prevBtn','dPrevBtn'],
+  NextBtn:['nextBtn','dNextBtn'],
+  QPills:['qPills','dQPills']
+ };
+ const pair=ids[id];
+ return document.getElementById(activeSurface==="dashboard"?pair[1]:pair[0]);
+}
+function getHistory(){
+ return JSON.parse(localStorage.getItem(HISTORY_STORE_KEY) || "[]");
+}
+function saveHistory(history){
+ localStorage.setItem(HISTORY_STORE_KEY,JSON.stringify(history.slice(0,30)));
+}
+function renderHistory(){
+ const list=document.getElementById('attemptHistory');
+ if(!list) return;
+ const history=getHistory();
+ const count=document.getElementById('historyCount');
+ if(count) count.textContent=history.length+" attempts";
+ if(!history.length){
+  list.innerHTML='<div class="empty-state">No practice history yet.</div>';
+  return;
+ }
+ list.innerHTML=history.map((attempt,index)=>{
+  const wrong=attempt.wrongItems.slice(0,2).map(item=>`<li>${item.skill}: ${item.technique}</li>`).join("");
+  return `<button class="history-item" onclick="showHistoryDetail(${index})"><b>${attempt.mode}</b><span>${attempt.dateTime}</span><strong>${attempt.score}%</strong><small>${attempt.wrongItems.length} wrong items</small>${wrong?`<ul>${wrong}</ul>`:""}</button>`;
+ }).join("");
+}
+function showHistoryDetail(index){
+ const attempt=getHistory()[index];
+ if(!attempt) return;
+ const result=document.getElementById('dashboardResult');
+ if(!result) return;
+ result.innerHTML=`<div class="panel-head"><h3>${attempt.mode}</h3><span>${attempt.dateTime}</span></div><div class="big-inline-score">${attempt.score}%</div>${renderWrongItems(attempt.wrongItems)}`;
+}
+function renderWrongItems(wrongItems){
+ if(!wrongItems.length) return '<div class="status-banner status-good">No wrong answers in this attempt. Keep practicing for consistency.</div>';
+ return `<div class="wrong-list">${wrongItems.map(item=>`<div class="review-item"><div class="review-q">${item.question}</div><div class="review-grid"><div class="review-box"><small>Correct answer</small><p>${item.correctAnswer}</p></div><div class="review-box tech"><small>Technique to review</small><p>${item.technique}</p></div></div></div>`).join("")}</div>`;
+}
+function saveAttemptHistory(score){
+ const wrongItems=activeQuestions.map((q,i)=>({q,i,user:answers[i]})).filter(item=>item.user!==item.q.a).map(item=>({
+  question:item.q.q,
+  skill:item.q.skill,
+  correctAnswer:item.q.choices[item.q.a],
+  technique:item.q.tech
+ }));
+ const attempt={mode:activeMode,level:selectedLevel,score,dateTime:new Date().toLocaleString(),wrongItems};
+ const history=getHistory();
+ history.unshift(attempt);
+ saveHistory(history);
+ renderHistory();
+ return attempt;
+}
 function renderQuestion(){
  const item=activeQuestions[current];
- document.getElementById('questionText').textContent=item.q;
- document.getElementById('categoryChip').textContent=item.cat;
- document.getElementById('qNumber').textContent=activeMode+' • Question '+(current+1);
- document.getElementById('progressText').textContent=(current+1)+' / '+activeQuestions.length;
- document.getElementById('progressFill').style.width=((current+1)/activeQuestions.length*100)+'%';
- const choices=document.getElementById('choices');choices.innerHTML='';
+ if(!item) return;
+ testElement('TestLevel').textContent=activeMode;
+ testElement('QuestionText').textContent=item.q;
+ testElement('CategoryChip').textContent=item.cat;
+ testElement('QNumber').textContent=activeMode+' • Question '+(current+1);
+ testElement('ProgressText').textContent=(current+1)+' / '+activeQuestions.length;
+ testElement('ProgressFill').style.width=((current+1)/activeQuestions.length*100)+'%';
+ const choices=testElement('Choices');choices.innerHTML='';
  item.choices.forEach((c,i)=>{
   const b=document.createElement('button');b.className='choice'+(answers[current]===i?' selected':'');
   b.innerHTML=`<span class="choice-letter">${String.fromCharCode(65+i)}</span><span>${c}</span>`;
   b.onclick=()=>{answers[current]=i;renderQuestion()};choices.appendChild(b);
  });
- document.getElementById('prevBtn').style.visibility=current===0?'hidden':'visible';
- document.getElementById('nextBtn').textContent=current===activeQuestions.length-1?(activeMode.includes('CSC Mock Exam')?'Submit Mock Exam':'Submit Diagnostic'):'Next';
+ testElement('PrevBtn').style.visibility=current===0?'hidden':'visible';
+ testElement('NextBtn').textContent=current===activeQuestions.length-1?(activeMode.includes('CSC Mock Exam')?'Submit Mock Exam':'Submit Diagnostic'):'Next';
  renderPills();
 }
 function renderPills(){
- const el=document.getElementById('qPills');el.innerHTML='';
+ const el=testElement('QPills');el.innerHTML='';
  activeQuestions.forEach((_,i)=>{
   let cls='q-pill';if(i===current)cls+=' current';else if(answers[i]!==undefined)cls+=' done';
   const d=document.createElement('div');d.className=cls;d.textContent=i+1;d.onclick=()=>{current=i;renderQuestion()};el.appendChild(d);
@@ -346,6 +415,16 @@ function submitTest(){
   if(answers[i]===q.a){correct++;cats[q.cat].ok++;cats[q.cat].skills[q.skill].ok++}
  });
  const score=Math.round(correct/activeQuestions.length*100);
+ if(activeSurface==="dashboard"){
+  const attempt=saveAttemptHistory(score);
+  const result=document.getElementById('dashboardResult');
+  if(result){
+   result.innerHTML=`<div class="panel-head"><h3>${activeMode} complete</h3><span>${attempt.dateTime}</span></div><div class="status-banner ${score>=80?'status-good':'status-warn'}">Score: ${score}% • ${correct} of ${activeQuestions.length} correct</div>${renderWrongItems(attempt.wrongItems)}`;
+   result.scrollIntoView({behavior:'smooth',block:'start'});
+  }
+  showToast("Attempt saved to your dashboard history.");
+  return;
+ }
  document.getElementById('overallScore').textContent=score+'%';
  const banner=document.getElementById('statusBanner');
  const isMember=Boolean(localStorage.getItem('passCscCurrentUser'));
@@ -471,6 +550,7 @@ function showLearnerDashboard(){
  const weak=document.getElementById('memberWeakSkill');
  if(weak) weak.textContent=lastWeakSkill || "Mixed";
  renderCoverageDetails();
+ renderHistory();
  showScreen('dashboard');
 }
 function logoutLearner(){
@@ -560,6 +640,9 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
+
+
 
 
 
