@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pass CSC - Civil Service Exam Reviewer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="#" onclick="showScreen('home')">
+      <div class="brand-mark">P</div>
+      <div>
+        <div class="brand-name">Pass CSC</div>
+        <div class="brand-sub">Civil Service Exam Reviewer</div>
+      </div>
+    </a>
+    <nav>
+      <button class="nav-btn" onclick="showScreen('home')">Home</button>
+      <button class="nav-btn" onclick="showLearnerDashboard()">Dashboard</button>
+      <button class="nav-btn" onclick="openAdmin()">Admin</button>
+      <button class="nav-btn" onclick="showLogin()">Login</button>
+      <button class="btn btn-primary small" onclick="showScreen('level')">Start Free Diagnostic</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="screen active">
+      <div class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">SMARTER CSE PREPARATION</div>
+          <h1>Know your weak points.<br><span>Review what matters.</span></h1>
+          <p>Take a free diagnostic test for Professional or Subprofessional level, get a personalized skill assessment, and learn the fastest techniques to solve questions without a calculator.</p>
+          <div class="hero-actions">
+            <button class="btn btn-primary large" onclick="showScreen('level')">Take Free Diagnostic</button>
+            <button class="btn btn-secondary large" onclick="showScreen('dashboard')">View Sample Dashboard</button>
+          </div>
+          <div class="trust-row">
+            <span>✓ Personalized review plan</span>
+            <span>✓ Fast solution techniques</span>
+            <span>✓ 80%+ readiness target</span>
+          </div>
+        </div>
+        <div class="hero-card glass">
+          <div class="score-ring">
+            <div>
+              <strong>84%</strong>
+              <span>Readiness</span>
+            </div>
+          </div>
+          <div class="mini-stats">
+            <div><span>Verbal</span><b>86%</b></div>
+            <div><span>Numerical</span><b class="warn">68%</b></div>
+            <div><span>Analytical</span><b>82%</b></div>
+            <div><span>General Info</span><b>91%</b></div>
+          </div>
+          <div class="recommendation">
+            <span class="dot"></span>
+            <div><b>Next best step</b><p>Practice Percentage & Ratio — 10 questions</p></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">HOW IT WORKS</div>
+          <h2>A clear path from diagnostic to exam-ready</h2>
+        </div>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card"><div class="num">01</div><h3>Choose your level</h3><p>Professional or Subprofessional. Your content and diagnostic adapt automatically.</p></article>
+        <article class="feature-card"><div class="num">02</div><h3>Find your weak points</h3><p>We score every category and micro-skill so you know exactly where to focus.</p></article>
+        <article class="feature-card"><div class="num">03</div><h3>Learn the fastest technique</h3><p>After submitting, see the correct answer, explanation, shortcut, and common trap.</p></article>
+        <article class="feature-card"><div class="num">04</div><h3>Reach 80%+</h3><p>Practice intelligently until your readiness score consistently clears the passing target.</p></article>
+      </div>
+    </section>
+
+    <section id="level" class="screen">
+      <div class="center-wrap">
+        <div class="eyebrow">STEP 1 OF 2</div>
+        <h2>Which exam are you preparing for?</h2>
+        <p class="muted">Choose your level. You can switch later from your profile.</p>
+        <div class="level-grid">
+          <button class="level-card" onclick="selectLevel('Professional')">
+            <div class="level-icon">P</div>
+            <div>
+              <h3>Professional Level</h3>
+              <p>Verbal, Numerical, Analytical Ability, and General Information.</p>
+              <span>Recommended for second-level government positions →</span>
+            </div>
+          </button>
+          <button class="level-card" onclick="selectLevel('Subprofessional')">
+            <div class="level-icon alt">S</div>
+            <div>
+              <h3>Subprofessional Level</h3>
+              <p>Verbal, Numerical, Clerical Ability, and General Information.</p>
+              <span>Recommended for first-level government positions →</span>
+            </div>
+          </button>
+        </div>
+        <div class="disclaimer">Independent review platform. Not affiliated with or endorsed by the Civil Service Commission.</div>
+      </div>
+    </section>
+
+    <section id="diagnosticIntro" class="screen">
+      <div class="center-wrap narrow">
+        <div class="test-badge">FREE DIAGNOSTIC</div>
+        <h2 id="diagTitle">Professional Level Diagnostic</h2>
+        <p class="muted">This short demo gives you 11 random questions from a larger question bank. Start again to get a different set.</p>
+        <div class="info-boxes">
+          <div><b>11</b><span>Random Questions</span></div>
+          <div><b>4</b><span>Skill Categories</span></div>
+          <div><b>80%</b><span>Passing Target</span></div>
+        </div>
+        <div class="rules">
+          <h3>Before you begin</h3>
+          <p>Answer without a calculator. You will see your score, weak points, correct answers, and fast-solving techniques after submission.</p>
+        </div>
+        <div class="rules">
+          <h3>Reading comprehension technique</h3>
+          <p>Use Q-R-A: read the question first, scan the passage for keywords, then answer using only what is stated or clearly implied.</p>
+        </div>
+        <button class="btn btn-primary large full" onclick="startTest()">Begin Diagnostic</button>
+      </div>
+    </section>
+
+    <section id="test" class="screen">
+      <div class="test-layout">
+        <aside class="test-sidebar">
+          <div class="eyebrow">DIAGNOSTIC</div>
+          <h3 id="testLevel">Professional</h3>
+          <div class="progress-meta"><span>Progress</span><b id="progressText">1 / 11</b></div>
+          <div class="progress-bar"><div id="progressFill"></div></div>
+          <div class="q-pills" id="qPills"></div>
+        </aside>
+        <div class="question-panel">
+          <div class="q-top"><span id="categoryChip" class="chip">Numerical Ability</span><span class="muted" id="qNumber">Question 1</span></div>
+          <h2 id="questionText"></h2>
+          <div class="choices" id="choices"></div>
+          <div class="test-actions">
+            <button class="btn btn-secondary" id="prevBtn" onclick="prevQuestion()">Previous</button>
+            <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="results" class="screen">
+      <div class="results-head">
+        <div>
+          <div class="eyebrow">DIAGNOSTIC COMPLETE</div>
+          <h2>Your personalized assessment</h2>
+          <p class="muted">Here is where you are now and what you should review first.</p>
+        </div>
+        <div class="big-score"><span id="overallScore">70%</span><small>Overall Score</small></div>
+      </div>
+      <div id="statusBanner" class="status-banner"></div>
+      <div class="dashboard-grid">
+        <div class="panel">
+          <div class="panel-head"><h3>Performance by category</h3><span>Target 80%+</span></div>
+          <div id="categoryBars"></div>
+        </div>
+        <div class="panel priority-panel">
+          <div class="panel-head"><h3>Your review priority</h3></div>
+          <div id="priorityList"></div>
+          <button class="btn btn-primary full" onclick="showScreen('review')">View Review Plan</button>
+        </div>
+      </div>
+      <div class="subscribe-panel">
+        <div>
+          <div class="eyebrow">NEXT STEP</div>
+          <h3>Subscribe to continue your full review</h3>
+          <p>Your diagnostic is free. Unlock the complete reviewer to get personalized drills, mock exams, detailed explanations, and progress tracking based on your weak points.</p>
+          <div class="unlock-list">
+            <span>Targeted weak-skill drills</span>
+            <span>Full mock exams</span>
+            <span>Answer explanations</span>
+            <span>Progress tracking</span>
+          </div>
+        </div>
+        <div class="subscribe-price">
+          <small>6-month access</small>
+          <strong>₱399</strong>
+          <button class="btn btn-primary" onclick="showCheckout()">Subscribe Now</button>
+          <button class="btn btn-secondary" onclick="showScreen('review')">Preview Plan</button>
+        </div>
+      </div>
+      <div class="panel answer-panel">
+        <div class="panel-head"><h3>Question review & techniques</h3><span>Learn from every answer</span></div>
+        <div id="answerReview"></div>
+      </div>
+    </section>
+
+    <section id="review" class="screen">
+      <div class="center-wrap wide">
+        <div class="eyebrow">PERSONALIZED REVIEW</div>
+        <h2>Your learning path is ready</h2>
+        <p class="muted">Preview your plan for free. Subscribe to unlock the full drills, mock exams, and progress tracking.</p>
+        <div class="review-roadmap">
+          <button class="road-card active-road" onclick="startRecommendedReview()"><span>1</span><div><small>FREE PREVIEW</small><h3 id="roadWeak">Percentage & Ratio</h3><p>Sample targeted questions + fast techniques</p></div><b>→</b></button>
+          <button class="road-card locked-road" onclick="showCheckout()"><span>2</span><div><small>SUBSCRIBER</small><h3>Mixed Skill Drill</h3><p>Unlock adaptive questions</p></div><b>🔒</b></button>
+          <button class="road-card locked-road" onclick="showCheckout()"><span>3</span><div><small>SUBSCRIBER</small><h3>Timed Mock Exam</h3><p>Unlock readiness exams under pressure</p></div><b>🔒</b></button>
+        </div>
+        <div class="upgrade-card">
+          <div><div class="eyebrow">FULL ACCESS</div><h3>Unlock your complete review program</h3><p>Adaptive drills, full mock exams, detailed explanations, fast techniques, and progress tracking.</p></div>
+          <div class="price"><small>6-month access</small><strong>₱399</strong><button class="btn btn-primary" onclick="showCheckout()">Unlock Complete Review</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="dashboard" class="screen">
+      <div class="dash-welcome">
+        <div><div class="eyebrow">YOUR DASHBOARD</div><h2 id="dashboardGreeting">Good evening, Future Civil Servant.</h2><p class="muted">Keep building your score one skill at a time.</p></div>
+        <button class="btn btn-primary" onclick="showScreen('level')">New Diagnostic</button>
+      </div>
+      <div class="kpi-grid">
+        <div class="kpi"><span>Readiness Score</span><strong>76%</strong><small>+8% from last test</small></div>
+        <div class="kpi"><span>Questions Answered</span><strong>248</strong><small>187 correct</small></div>
+        <div class="kpi"><span>Strongest Skill</span><strong>Verbal</strong><small>88% mastery</small></div>
+        <div class="kpi"><span>Needs Focus</span><strong>Numerical</strong><small>64% mastery</small></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head"><h3>Recommended today</h3><span>Based on your weakest skills</span></div>
+        <div class="today-list">
+          <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
+          <div><div class="task-icon">∴</div><div><b>Analytical Reasoning Drill</b><span>Randomized questions</span></div><button class="btn btn-secondary small" onclick="startDrill('Analytical Ability')">Start</button></div>
+          <div><div class="task-icon">⏱</div><div><b>Mini Mock Exam</b><span>Mixed randomized test</span></div><button class="btn btn-secondary small" onclick="startDrill('mock')">Start</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="login" class="screen">
+      <div class="center-wrap narrow">
+        <div class="eyebrow">MEMBER LOGIN</div>
+        <h2>Sign in with your Gmail</h2>
+        <p class="muted">Use the Gmail you submitted with your payment. Access opens after admin approval.</p>
+        <form class="auth-form" onsubmit="loginWithEmail(event)">
+          <label>
+            Gmail address
+            <input id="loginEmail" type="email" placeholder="yourname@gmail.com" required />
+          </label>
+          <button class="btn btn-primary large full" type="submit">Open Dashboard</button>
+        </form>
+      </div>
+    </section>
+
+    <section id="paymentStatus" class="screen">
+      <div class="center-wrap narrow">
+        <div class="test-badge">PAYMENT SUBMITTED</div>
+        <h2>Save your follow-up reference</h2>
+        <p class="muted">Use this when contacting support about your payment approval.</p>
+        <div class="reference-card">
+          <small>Follow-up reference number</small>
+          <strong id="followUpReference">PSC-000000</strong>
+        </div>
+        <div class="support-box">
+          <h3>Support follow-up</h3>
+          <p>Message support with your follow-up reference, Gmail, GCash reference number, and payment screenshot.</p>
+          <button class="btn btn-secondary full" onclick="copySupportMessage()">Copy Support Message</button>
+        </div>
+        <button class="btn btn-primary large full" onclick="showLogin()">Go to Login</button>
+      </div>
+    </section>
+
+    <section id="admin" class="screen">
+      <div class="dash-welcome">
+        <div><div class="eyebrow">ADMIN DASHBOARD</div><h2>Payment approvals</h2><p class="muted">Approve submitted payments to activate learner access.</p></div>
+        <button class="btn btn-secondary" onclick="renderAdmin()">Refresh</button>
+      </div>
+      <div class="panel admin-panel">
+        <div class="panel-head"><h3>Pending payments</h3><span id="adminCount">0 pending</span></div>
+        <div id="adminPayments"></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <b>Pass CSC</b><span>Independent Civil Service Exam review platform • Demo prototype</span>
+  </footer>
+  <div class="modal" id="paymentModal" aria-hidden="true">
+    <div class="modal-backdrop" onclick="closeCheckout()"></div>
+    <div class="payment-card" role="dialog" aria-modal="true" aria-labelledby="paymentTitle">
+      <button class="modal-close" onclick="closeCheckout()">×</button>
+      <div class="eyebrow">GCASH PAYMENT</div>
+      <h2 id="paymentTitle">Unlock Complete Review</h2>
+      <p class="muted">Send payment first, then submit your proof and reference number for verification.</p>
+      <div class="gcash-box">
+        <div>
+          <small>Send to GCash name</small>
+          <strong id="sellerName">PASS CSC REVIEW CENTER</strong>
+        </div>
+        <div>
+          <small>GCash number</small>
+          <strong id="sellerNumber">09XX XXX XXXX</strong>
+        </div>
+        <div>
+          <small>Amount</small>
+          <strong>₱399</strong>
+        </div>
+      </div>
+      <form class="payment-form" onsubmit="submitPayment(event)">
+        <label>
+          Gmail for account access <span>Required</span>
+          <input id="paymentEmail" type="email" placeholder="yourname@gmail.com" required />
+        </label>
+        <label>
+          Reference number <span>Required</span>
+          <input id="referenceNumber" type="text" placeholder="Enter GCash reference number" required />
+        </label>
+        <label>
+          Attach payment proof <span>Required</span>
+          <input id="paymentProof" type="file" accept="image/*,.pdf" required />
+        </label>
+        <button class="btn btn-primary full" type="submit">Submit for Verification</button>
+      </form>
+      <p class="payment-note">Access will be activated after seller verification.</p>
+    </div>
+  </div>
+  <div class="toast" id="toast"></div>
+</div>
+<script src="app.js"></script>
+</body>
+</html>

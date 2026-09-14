@@ -1,1 +1,1 @@
-{"name":"pass-csc","version":"1.0.0","private":true,"scripts":{"deploy":"wrangler pages deploy . --project-name passcsc --branch main"},"devDependencies":{"wrangler":"latest"}}
+{"name":"pass-csc","version":"1.0.0","private":true,"scripts":{"deploy":"wrangler deploy","preview":"wrangler dev"},"devDependencies":{"wrangler":"^4.131.0"}}
