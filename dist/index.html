@@ -21,7 +21,6 @@
     </a>
     <nav>
       <button class="nav-btn" onclick="showScreen('home')">Home</button>
-      <button class="nav-btn" onclick="showLearnerDashboard()">Dashboard</button>
       <button class="nav-btn" onclick="showLogin()">Login</button>
       <button class="btn btn-primary small" onclick="showScreen('level')">Start Free Diagnostic</button>
     </nav>
@@ -36,7 +35,6 @@
           <p>Take a free diagnostic test for Professional or Subprofessional level, get a personalized skill assessment, and learn the fastest techniques to solve questions without a calculator.</p>
           <div class="hero-actions">
             <button class="btn btn-primary large" onclick="showScreen('level')">Take Free Diagnostic</button>
-            <button class="btn btn-secondary large" onclick="showLearnerDashboard()">Open Dashboard</button>
           </div>
           <div class="trust-row">
             <span>✓ Personalized review plan</span>
@@ -169,7 +167,7 @@
           <button class="btn btn-primary full" onclick="showScreen('review')">View Review Plan</button>
         </div>
       </div>
-      <div class="subscribe-panel">
+      <div class="subscribe-panel" id="subscribePanel">
         <div>
           <div class="eyebrow">NEXT STEP</div>
           <h3>Subscribe to continue your full review</h3>
@@ -213,7 +211,7 @@
 
     <section id="dashboard" class="screen">
       <div class="dash-welcome">
-        <div><div class="eyebrow">MEMBER PRACTICE DASHBOARD</div><h2 id="dashboardGreeting">Welcome back.</h2><p class="muted">Choose a drill or start a mock exam. Your practice questions are randomized each time.</p></div>
+        <div><div class="eyebrow">MEMBER PRACTICE DASHBOARD</div><h2 id="dashboardGreeting">Welcome back.</h2><p class="muted">Choose a drill or start a Civil Service-style mock exam. Your practice questions are randomized each time.</p></div>
         <button class="btn btn-secondary" onclick="logoutLearner()">Logout</button>
       </div>
       <div class="kpi-grid">
@@ -228,7 +226,7 @@
           <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
           <div><div class="task-icon">∴</div><div><b>Analytical Reasoning Drill</b><span>Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startDrill('Analytical Ability')">Start</button></div>
           <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
-          <div><div class="task-icon">⏱</div><div><b>Full Mock Exam</b><span>Mixed randomized exam mode</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
+          <div><div class="task-icon">CSC</div><div><b>Full CSC Mock Exam</b><span>Professional 170 items / Subprofessional 165 items</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
         </div>
       </div>
     </section>
@@ -325,5 +323,8 @@
 <script src="app.js"></script>
 </body>
 </html>
+
+
+
 
 

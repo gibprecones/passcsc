@@ -40,6 +40,12 @@ const questions = [
  {cat:"General Information",q:"Which document is considered the highest law of the Philippines?",choices:["Civil Code","Labor Code","Constitution","Local ordinance"],a:2,skill:"Constitution",tech:"The Constitution is the supreme or highest law of the land."},
  {cat:"General Information",q:"Which right protects a person from being forced to testify against oneself?",choices:["Right to education","Right against self-incrimination","Right to travel","Right to assemble"],a:1,skill:"Bill of Rights",tech:"Remember the phrase: no person shall be compelled to be a witness against himself."},
  {cat:"General Information",q:"The Ombudsman mainly investigates complaints against:",choices:["Private companies only","Public officials and employees","Foreign citizens","Students"],a:1,skill:"Accountability",tech:"The Ombudsman handles complaints involving public officials and employees."},
+ {cat:"Clerical Ability",q:"Arrange alphabetically: Santos, Reyes, Rivera, Ramos.",choices:["Ramos, Reyes, Rivera, Santos","Reyes, Ramos, Rivera, Santos","Ramos, Rivera, Reyes, Santos","Santos, Ramos, Reyes, Rivera"],a:0,skill:"Alphabetical Filing",tech:"Compare letter by letter. All R names come before Santos; among Ramos, Reyes, Rivera: Ra comes before Re, then Ri."},
+ {cat:"Clerical Ability",q:"Which entry is filed first alphabetically?",choices:["Delos Santos","Dela Cruz","De Vera","Domingo"],a:1,skill:"Alphabetical Filing",tech:"Compare after De. Dela comes before Delos, De Vera, and Domingo."},
+ {cat:"Clerical Ability",q:"Find the correctly coded item: 48291 copied as ____.",choices:["48219","48291","48921","42891"],a:1,skill:"Attention to Detail",tech:"Check digit by digit from left to right. Only 48291 matches exactly."},
+ {cat:"Clerical Ability",q:"Which pair is exactly the same?",choices:["CSC-2841 / CSC-2481","PRC-7702 / PRC-7702","BIR-1198 / B1R-1198","LTO-5630 / LTO-5360"],a:1,skill:"Attention to Detail",tech:"Scan each character. PRC-7702 matches exactly; the others have swapped or changed characters."},
+ {cat:"Clerical Ability",q:"A file labeled Mendoza, Ana should be placed under which surname?",choices:["Ana","Mendoza","Letter A","First name"],a:1,skill:"Filing Rules",tech:"For names written last name first, file by surname. The surname is Mendoza."},
+ {cat:"Clerical Ability",q:"If office hours are 8:00 AM to 5:00 PM with 1 hour lunch break, how many working hours are there?",choices:["7 hours","8 hours","9 hours","10 hours"],a:1,skill:"Clerical Computation",tech:"8 AM to 5 PM is 9 hours. Subtract 1 hour lunch break = 8 working hours."},
  {cat:"General Information",q:"Which value is emphasized by arriving on time and completing duties promptly?",choices:["Punctuality","Secrecy","Favoritism","Extravagance"],a:0,skill:"Work Values",tech:"Arriving on time and prompt work point to punctuality."}
 ];
 
@@ -62,9 +68,27 @@ function randomizeQuestion(q){
 function buildRandomizedQuestions(count=DIAGNOSTIC_QUESTION_COUNT){
  return shuffleList(questions).slice(0,count).map(randomizeQuestion);
 }
+function getMockItemCount(){
+ return selectedLevel==="Subprofessional"?165:170;
+}
+function getLevelQuestionPool(){
+ return questions.filter(q=>{
+  if(selectedLevel==="Subprofessional") return q.cat!=="Analytical Ability";
+  return q.cat!=="Clerical Ability";
+ });
+}
+function buildMockExam(count=getMockItemCount()){
+ const pool=getLevelQuestionPool();
+ const exam=[];
+ while(exam.length<count){
+  exam.push(...shuffleList(pool));
+ }
+ return exam.slice(0,count).map(randomizeQuestion);
+}
 function buildQuestionSet(filter){
  let pool=[...questions];
- if(filter==="mixed" || filter==="mock") return buildRandomizedQuestions(filter==="mock"?DIAGNOSTIC_QUESTION_COUNT:8);
+ if(filter==="mock") return buildMockExam(getMockItemCount());
+ if(filter==="mixed") return buildRandomizedQuestions(8);
  if(filter){
   const directMatches=questions.filter(q=>q.skill===filter || q.cat===filter);
   const directCategories=[...new Set(directMatches.map(q=>q.cat))];
@@ -91,7 +115,7 @@ function startTest(){
  current=0;answers={};activeQuestions=buildRandomizedQuestions();renderQuestion();showScreen('test');
 }
 function startDrill(filter){
- activeMode=filter==="mock"?"Mini Mock Exam":filter==="mixed"?"Mixed Skill Drill":filter+" Drill";
+ activeMode=filter==="mock"?selectedLevel+" CSC Mock Exam ("+getMockItemCount()+" items)":filter==="mixed"?"Mixed Skill Drill":filter+" Drill";
  document.getElementById('testLevel').textContent=activeMode;
  current=0;answers={};activeQuestions=buildQuestionSet(filter);renderQuestion();showScreen('test');
  showToast(activeMode+" started. Questions and choices are randomized.");
@@ -113,7 +137,7 @@ function renderQuestion(){
   b.onclick=()=>{answers[current]=i;renderQuestion()};choices.appendChild(b);
  });
  document.getElementById('prevBtn').style.visibility=current===0?'hidden':'visible';
- document.getElementById('nextBtn').textContent=current===activeQuestions.length-1?'Submit Diagnostic':'Next';
+ document.getElementById('nextBtn').textContent=current===activeQuestions.length-1?(activeMode.includes('CSC Mock Exam')?'Submit Mock Exam':'Submit Diagnostic'):'Next';
  renderPills();
 }
 function renderPills(){
@@ -140,8 +164,11 @@ function submitTest(){
  const score=Math.round(correct/activeQuestions.length*100);
  document.getElementById('overallScore').textContent=score+'%';
  const banner=document.getElementById('statusBanner');
+ const isMember=Boolean(localStorage.getItem('passCscCurrentUser'));
+ const subscribePanel=document.getElementById('subscribePanel');
+ if(subscribePanel) subscribePanel.style.display=isMember?'none':'grid';
  banner.className='status-banner '+(score>=80?'status-good':'status-warn');
- banner.textContent=score>=80?'You reached the 80% passing target in this demo. Aim for 85%+ consistently before exam day.':'You are not yet at the 80% target. Your personalized review below focuses on the skills costing you the most points.';
+ banner.textContent=score>=80?'You reached the 80% passing target. Aim for 85%+ consistently before exam day.':'You are not yet at the 80% target. Your personalized review below focuses on the skills costing you the most points.';
  const bars=document.getElementById('categoryBars');bars.innerHTML='';
  Object.entries(cats).forEach(([name,d])=>{
    const pct=Math.round(d.ok/d.total*100);
@@ -345,6 +372,9 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
+
+
 
 
 
