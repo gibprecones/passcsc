@@ -255,8 +255,20 @@ function showLearnerDashboard(){
   showToast("Please login with your approved Gmail first.");
   return;
  }
- document.getElementById('dashboardGreeting').textContent="Welcome back, "+email;
+ const greeting=document.getElementById('dashboardGreeting');
+ if(greeting) greeting.textContent="Welcome back, "+email;
+ const weak=document.getElementById('memberWeakSkill');
+ if(weak) weak.textContent=lastWeakSkill || "Mixed";
  showScreen('dashboard');
+}
+function logoutLearner(){
+ localStorage.removeItem("passCscCurrentUser");
+ showScreen('home');
+ showToast("Logged out.");
+}
+function initCustomerPage(){
+ if(!document.getElementById('dashboard')) return;
+ if(localStorage.getItem("passCscCurrentUser")) showLearnerDashboard();
 }
 function openAdmin(){
  window.location.href="admin.html";
@@ -311,9 +323,8 @@ function approvePayment(id){
  payment.status="approved";
  payment.approvedAt=new Date().toLocaleString();
  savePayments(payments);
- localStorage.setItem("passCscCurrentUser",payment.email);
- showLearnerDashboard();
- showToast("Approved. Signed in with the learner Gmail and opened the dashboard.");
+ renderAdmin();
+ showToast("Approved. Learner can now login with Gmail and open the dashboard.");
 }
 function copySupportMessage(){
  const payment=lastSubmittedPayment;
@@ -333,5 +344,8 @@ function showToast(message){
  showToast.timer=setTimeout(()=>toast.classList.remove('show'),3200);
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
+document.addEventListener('DOMContentLoaded',initCustomerPage);
+
+
 
 

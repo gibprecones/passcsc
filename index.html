@@ -36,7 +36,7 @@
           <p>Take a free diagnostic test for Professional or Subprofessional level, get a personalized skill assessment, and learn the fastest techniques to solve questions without a calculator.</p>
           <div class="hero-actions">
             <button class="btn btn-primary large" onclick="showScreen('level')">Take Free Diagnostic</button>
-            <button class="btn btn-secondary large" onclick="showScreen('dashboard')">View Sample Dashboard</button>
+            <button class="btn btn-secondary large" onclick="showLearnerDashboard()">Open Dashboard</button>
           </div>
           <div class="trust-row">
             <span>✓ Personalized review plan</span>
@@ -213,21 +213,22 @@
 
     <section id="dashboard" class="screen">
       <div class="dash-welcome">
-        <div><div class="eyebrow">YOUR DASHBOARD</div><h2 id="dashboardGreeting">Good evening, Future Civil Servant.</h2><p class="muted">Keep building your score one skill at a time.</p></div>
-        <button class="btn btn-primary" onclick="showScreen('level')">New Diagnostic</button>
+        <div><div class="eyebrow">MEMBER PRACTICE DASHBOARD</div><h2 id="dashboardGreeting">Welcome back.</h2><p class="muted">Choose a drill or start a mock exam. Your practice questions are randomized each time.</p></div>
+        <button class="btn btn-secondary" onclick="logoutLearner()">Logout</button>
       </div>
       <div class="kpi-grid">
-        <div class="kpi"><span>Readiness Score</span><strong>76%</strong><small>+8% from last test</small></div>
-        <div class="kpi"><span>Questions Answered</span><strong>248</strong><small>187 correct</small></div>
-        <div class="kpi"><span>Strongest Skill</span><strong>Verbal</strong><small>88% mastery</small></div>
-        <div class="kpi"><span>Needs Focus</span><strong>Numerical</strong><small>64% mastery</small></div>
+        <div class="kpi"><span>Access Status</span><strong>Active</strong><small>6-month review access</small></div>
+        <div class="kpi"><span>Question Bank</span><strong>30+</strong><small>Randomized reviewer items</small></div>
+        <div class="kpi"><span>Recommended First</span><strong id="memberWeakSkill">Mixed</strong><small>Based on latest diagnostic</small></div>
+        <div class="kpi"><span>Goal</span><strong>80%+</strong><small>Mock exam readiness</small></div>
       </div>
       <div class="panel">
-        <div class="panel-head"><h3>Recommended today</h3><span>Based on your weakest skills</span></div>
+        <div class="panel-head"><h3>Practice now</h3><span>Unlocked member area</span></div>
         <div class="today-list">
-          <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
-          <div><div class="task-icon">∴</div><div><b>Analytical Reasoning Drill</b><span>Randomized questions</span></div><button class="btn btn-secondary small" onclick="startDrill('Analytical Ability')">Start</button></div>
-          <div><div class="task-icon">⏱</div><div><b>Mini Mock Exam</b><span>Mixed randomized test</span></div><button class="btn btn-secondary small" onclick="startDrill('mock')">Start</button></div>
+          <div><div class="task-icon">%</div><div><b>Percentage & Ratio Drill</b><span>Targeted randomized questions</span></div><button class="btn btn-primary small" onclick="startDrill('Percentage')">Start</button></div>
+          <div><div class="task-icon">∴</div><div><b>Analytical Reasoning Drill</b><span>Logic, syllogism, ordering</span></div><button class="btn btn-primary small" onclick="startDrill('Analytical Ability')">Start</button></div>
+          <div><div class="task-icon">RC</div><div><b>Reading Comprehension Drill</b><span>Q-R-A technique practice</span></div><button class="btn btn-primary small" onclick="startDrill('Reading Comprehension')">Start</button></div>
+          <div><div class="task-icon">⏱</div><div><b>Full Mock Exam</b><span>Mixed randomized exam mode</span></div><button class="btn btn-primary small" onclick="startDrill('mock')">Start</button></div>
         </div>
       </div>
     </section>
@@ -324,4 +325,5 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
