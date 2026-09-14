@@ -327,9 +327,25 @@ function startExamTimer(){
    submitTest();
   }
  },1000);
+}function updateHeaderNav(){
+ const email=localStorage.getItem("passCscCurrentUser");
+ const publicNav=document.getElementById('publicNav');
+ const memberNav=document.getElementById('memberNav');
+ if(publicNav) publicNav.style.display=email?'none':'flex';
+ if(memberNav) memberNav.style.display=email?'flex':'none';
+ const profileEmail=document.getElementById('profileEmail');
+ const profileInitial=document.getElementById('profileInitial');
+ if(email && profileEmail) profileEmail.textContent=email;
+ if(email && profileInitial) profileInitial.textContent=email.charAt(0).toUpperCase();
+}
+function goHomeOrDashboard(){
+ updateHeaderNav();
+ if(localStorage.getItem("passCscCurrentUser")) showLearnerDashboard();
+ else showScreen('home');
 }function showScreen(id){
  document.querySelectorAll('.screen').forEach(x=>x.classList.remove('active'));
  document.getElementById(id).classList.add('active');
+ updateHeaderNav();
  window.scrollTo({top:0,behavior:'smooth'});
 }
 function selectLevel(level){
@@ -592,6 +608,7 @@ function loginWithEmail(event){
   return;
  }
  localStorage.setItem("passCscCurrentUser",email);
+ updateHeaderNav();
  showLearnerDashboard();
 }
 function showLearnerDashboard(){
@@ -611,6 +628,7 @@ function showLearnerDashboard(){
 }
 function logoutLearner(){
  localStorage.removeItem("passCscCurrentUser");
+ updateHeaderNav();
  showScreen('home');
  showToast("Logged out.");
 }
@@ -619,6 +637,7 @@ function initCustomerPage(){
  document.getElementById('diagTitle').textContent=selectedLevel+' Level Diagnostic';
  document.getElementById('testLevel').textContent=selectedLevel+' Level';
  renderCoverageDetails();
+ updateHeaderNav();
  if(localStorage.getItem("passCscCurrentUser")) showLearnerDashboard();
 }
 function openAdmin(){
@@ -696,6 +715,7 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
 
 
 

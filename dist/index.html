@@ -12,17 +12,22 @@
 <body>
 <div class="app-shell">
   <header class="topbar">
-    <a class="brand" href="#" onclick="showScreen('home')">
+    <a class="brand" href="#" onclick="goHomeOrDashboard()">
       <div class="brand-mark">P</div>
       <div>
         <div class="brand-name">Pass CSC</div>
         <div class="brand-sub">Civil Service Exam Reviewer</div>
       </div>
     </a>
-    <nav>
+    <nav id="publicNav">
       <button class="nav-btn" onclick="showScreen('home')">Home</button>
       <button class="nav-btn" onclick="showLogin()">Login</button>
       <button class="btn btn-primary small" onclick="showScreen('level')">Start Free Diagnostic</button>
+    </nav>
+    <nav id="memberNav" class="member-nav" style="display:none">
+      <button class="nav-btn" onclick="showLearnerDashboard()">Dashboard</button>
+      <div class="profile-pill"><span id="profileInitial">P</span><b id="profileEmail">Profile</b></div>
+      <button class="btn btn-secondary small" onclick="logoutLearner()">Logout</button>
     </nav>
   </header>
 
@@ -360,6 +365,7 @@
 <script src="app.js"></script>
 </body>
 </html>
+
 
 
 
