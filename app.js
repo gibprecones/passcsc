@@ -103,6 +103,7 @@ const questions = [
  {cat:"General Information",q:"Which value is emphasized by arriving on time and completing duties promptly?",choices:["Punctuality","Secrecy","Favoritism","Extravagance"],a:0,skill:"Work Values",tech:"Arriving on time and prompt work point to punctuality."}
 ];
 let generatedQuestions = [];
+const generatedQuestionKeys = new Set();
 function answerChoice(correct,wrongChoices){
  const choices=[correct,...wrongChoices].map(String);
  return {choices,a:0};
@@ -110,9 +111,13 @@ function answerChoice(correct,wrongChoices){
 function addGeneratedQuestion(list,cat,q,correct,wrongChoices,skill,tech){
  const item=answerChoice(correct,wrongChoices);
  if(new Set(item.choices).size<4) return;
+ const key=[cat,q,...item.choices].map(value=>String(value).trim().toLowerCase()).join("|");
+ if(generatedQuestionKeys.has(key)) return;
+ generatedQuestionKeys.add(key);
  list.push({cat,q,choices:item.choices,a:item.a,skill,tech});
 }
 function generateGeneratedQuestions(){
+ generatedQuestionKeys.clear();
  const list=[];
  const vocabPairs=[
   ["abundant","plentiful","scarce","tiny","weak"],["accurate","correct","careless","late","ordinary"],["brief","short","lengthy","formal","difficult"],["cautious","careful","reckless","quick","silent"],["diligent","hardworking","lazy","confused","angry"],["essential","necessary","optional","rare","distant"],["fragile","breakable","strong","bright","simple"],["generous","giving","selfish","strict","fearful"],["hostile","unfriendly","helpful","calm","honest"],["impartial","fair","biased","slow","secret"],["legible","readable","hidden","verbal","complex"],["mandatory","required","optional","informal","private"],["obsolete","outdated","modern","active","legal"],["prudent","wise","careless","noisy","temporary"],["rapid","fast","slow","minor","formal"],["sufficient","enough","lacking","empty","late"],["transparent","open","secretive","heavy","ancient"],["urgent","immediate","delayed","minor","unclear"]
@@ -123,11 +128,15 @@ function generateGeneratedQuestions(){
    addGeneratedQuestion(list,"Verbal Ability","Choose the word opposite in meaning to "+word.toUpperCase()+".",wrong[0],[correct,wrong[1],wrong[2]],"Vocabulary","For antonyms, first define the word, then choose the clearest opposite.");
   });
  }
- const subjects=["The clerk","The officers","Neither the supervisor nor the assistants","Each applicant","The documents","The committee"];
- const verbs=[["is","are","were","have been"],["files","file","filing","filed"],["was","were","are","have"],["submits","submit","submitting","were"],["are","is","was","has"],["meets","meet","meeting","were"]];
- subjects.forEach((subject,i)=>{
-  for(let r=0;r<120;r++) addGeneratedQuestion(list,"Verbal Ability",subject+" ___ required to follow office procedures.",verbs[i][0],verbs[i].slice(1),"Grammar","Check whether the subject is singular or plural, then choose the verb that agrees with it.");
- });
+ const grammarItems=[
+  ["The clerk ___ required to follow office procedures.","is",["are","were","have been"]],
+  ["The officers ___ the daily records before filing them.","file",["files","filing","filed"]],
+  ["Neither the supervisor nor the assistants ___ available during the meeting.","were",["was","is","has been"]],
+  ["Each applicant ___ a valid identification card.","submits",["submit","submitting","were"]],
+  ["The documents ___ ready for release.","are",["is","was","has"]],
+  ["The committee ___ every Monday to review pending requests.","meets",["meet","meeting","were"]]
+ ];
+ grammarItems.forEach(([prompt,correct,wrong])=>addGeneratedQuestion(list,"Verbal Ability",prompt,correct,wrong,"Grammar","Identify the subject first, then choose the verb that agrees with its number and tense."));
  const rcScenarios=[
   ["The office reduced paper use after forms were moved online.","What was the effect of moving forms online?","Paper use decreased",["Paper use increased","Forms were banned","Employees stopped reporting"]],
   ["Mina reviewed each instruction before answering because she wanted to avoid careless mistakes.","What can be inferred about Mina?","She was careful",["She ignored instructions","She was absent","She guessed quickly"]],
@@ -174,6 +183,35 @@ function generateGeneratedQuestions(){
   ["RA 6713","ethical standards for public officials and employees"],["Data Privacy Act","protection of personal information"],["Bill of Rights","basic rights and protections of citizens"],["Ombudsman","investigation of complaints against public officials"],["1987 Constitution","highest law of the Philippines"],["Public office","a public trust"],["Judicial branch","interprets laws"],["Legislative branch","makes laws"],["Executive branch","enforces laws"]
  ];
  for(let r=0;r<150;r++) laws.forEach(([term,correct])=>addGeneratedQuestion(list,"General Information",term+" is mainly about:",correct,["private business profit","personal campaign promotion","sports tournament rules"],"General Information","Connect the term to its public service meaning and eliminate unrelated choices."));
+ const generalItems=[
+  ["Under the Philippine Constitution, sovereignty resides in the:", "people", ["President alone","courts alone","government offices alone"]],
+  ["Which branch of government makes national laws?", "Legislative", ["Executive","Judicial","Local government"]],
+  ["Which branch carries out and enforces laws?", "Executive", ["Legislative","Judicial","Electoral"]],
+  ["The power to interpret laws belongs mainly to the:", "Judicial branch", ["Executive branch","Legislative branch","private sector"]],
+  ["The Bill of Rights primarily protects:", "individual rights and liberties", ["government revenue","office supplies","business branding"]],
+  ["Due process generally requires that a person be given:", "notice and an opportunity to be heard", ["automatic punishment","a public office","a tax exemption"]],
+  ["The constitutional principle that public office is a public trust emphasizes:", "accountability to the people", ["personal profit","secrecy in all matters","permanent immunity"]],
+  ["Freedom of speech is protected subject to:", "lawful limitations and the rights of others", ["no rules at all","approval by every office","private contracts only"]],
+  ["A Filipino citizen who is born to at least one Filipino parent is generally a:", "natural-born Filipino citizen", ["foreign resident","temporary visitor","naturalized foreigner"]],
+  ["RA 6713 promotes ethical conduct and:", "accountability and transparency in public service", ["personal favors","unrecorded transactions","private campaigning"]],
+  ["Under RA 6713, public officials should place public interest:", "above personal interest", ["after private profit","below favoritism","only during elections"]],
+  ["A conflict of interest occurs when personal interest may affect:", "official judgment or duty", ["office colors","weather reports","commute routes"]],
+  ["The Ombudsman is associated with investigating complaints involving:", "public officials and employees", ["private hobbies","school sports teams","foreign weather stations"]],
+  ["Data privacy is mainly concerned with protecting:", "personal information", ["public roads","office furniture","weather forecasts"]],
+  ["A good data privacy practice is to collect only information that is:", "necessary for a stated purpose", ["unlimited and unrelated","secret from the owner","copied without reason"]],
+  ["Ease of Doing Business reforms generally aim to make government transactions:", "simpler, faster, and more transparent", ["slower and less clear","available only by favor","free from all requirements"]],
+  ["Human rights belong to:", "all people", ["only elected officials","only government employees","only property owners"]],
+  ["The principle of equality before the law means that people should be:", "treated fairly under the same law", ["judged by wealth","exempt based on position","punished without hearing"]],
+  ["Environmental protection is a responsibility shared by:", "the government and the community", ["one person only","private clubs only","foreign visitors only"]],
+  ["During an earthquake, the safest immediate action indoors is generally to:", "drop, cover, and hold on", ["run toward windows","use an elevator","stand beside glass"]],
+  ["A disaster preparedness plan should include:", "emergency contacts, supplies, and evacuation routes", ["only decorations","unverified rumors","a list of advertisements"]],
+  ["A primary purpose of public service is to:", "serve the needs of the people", ["favor relatives","increase personal wealth","avoid accountability"]],
+  ["Transparency in government means making relevant information:", "accessible according to law", ["secret by default","available only to friends","deleted after use"]],
+  ["Accountability means an official must be prepared to:", "explain and answer for official actions", ["avoid records","ignore complaints","transfer blame automatically"]],
+  ["The Constitution provides the framework for:", "government powers and citizens' rights", ["private product pricing","office dress codes only","sports schedules"]]
+ ];
+ generalItems.forEach(([prompt,correct,wrong])=>addGeneratedQuestion(list,"General Information",prompt,correct,wrong,"General Information","Identify the governing principle first, then eliminate choices unrelated to constitutional rights or ethical public service."));
+
  const surnames=["Santos","Reyes","Rivera","Ramos","Dela Cruz","Delos Santos","Mendoza","Garcia","Aquino","Bautista","Cruz","Domingo","Flores","Lopez","Navarro","Villanueva"];
  for(let i=0;i<surnames.length-3;i++){
   const group=[surnames[i],surnames[i+1],surnames[i+2],surnames[i+3]];
@@ -190,13 +228,34 @@ function generateGeneratedQuestions(){
   ["Which review area do you want to improve most?",["Verbal Ability","Numerical Ability","General Information","Time management"]],
   ["How many hours can you usually review per week?",["Less than 2 hours","2 to 5 hours","6 to 10 hours","More than 10 hours"]],
   ["Which practice format helps you most?",["Short drills","Full mock exams","Answer explanations","Mixed review"]],
-  ["What is your current exam preparation stage?",["Just starting","Reviewing basics","Taking practice tests","Final review"]]
+  ["What is your current exam preparation stage?",["Just starting","Reviewing basics","Taking practice tests","Final review"]],
+  ["Which exam level are you preparing for?",["Professional","Subprofessional","Both levels","Still deciding"]],
+  ["Which time of day do you prefer for review?",["Morning","Afternoon","Evening","Varies by day"]],
+  ["How confident are you with reading comprehension?",["Needs work","Developing","Confident","Very confident"]],
+  ["How confident are you with basic arithmetic?",["Needs work","Developing","Confident","Very confident"]],
+  ["How comfortable are you with percentage problems?",["Not yet","Somewhat","Comfortable","Very comfortable"]],
+  ["Which question type takes you the longest?",["Verbal","Numerical","Analytical or Clerical","General Information"]],
+  ["Do you usually read all answer choices before selecting one?",["Always","Usually","Sometimes","Rarely"]],
+  ["How do you check your numerical answers?",["Estimate","Recalculate","Use a written solution","I do not check yet"]],
+  ["How do you handle an unfamiliar word?",["Use context clues","Skip immediately","Guess randomly","Stop the test"]],
+  ["How do you approach a long passage?",["Read the question first","Read every word twice","Skip it","Look only at the choices"]],
+  ["How often do you practice filing and alphabetical order?",["Never","Occasionally","Weekly","Almost daily"]],
+  ["Which study resource do you use most?",["Practice questions","Notes","Video lessons","Group discussion"]],
+  ["What is your main review goal?",["Improve accuracy","Improve speed","Build confidence","Maintain consistency"]],
+  ["How do you prefer to track your mistakes?",["Review history","Write notes","Ask a mentor","I do not track them yet"]],
+  ["How prepared do you feel for a timed mock exam?",["Not ready","Somewhat ready","Mostly ready","Ready to simulate the exam"]]
  ];
  for(let r=0;r<260;r++) edqPrompts.forEach(([prompt,choices])=>addGeneratedQuestion(list,"EDQ",prompt,choices[0],choices.slice(1),"Examinee Descriptive Questionnaire","EDQ items are practice-only profile questions. Answer honestly and keep moving so you preserve time for scored items.")); return shuffleList(list);
 }
 function getAllQuestions(){
  if(!generatedQuestions.length) generatedQuestions=generateGeneratedQuestions();
- return [...questions,...generatedQuestions];
+ const seen=new Set();
+ return [...questions,...generatedQuestions].filter(item=>{
+  const key=[item.cat,item.q,...item.choices].map(value=>String(value).trim().toLowerCase()).join("|");
+  if(seen.has(key)) return false;
+  seen.add(key);
+  return true;
+ });
 }
 function shuffleList(items){
  const shuffled=[...items];
@@ -223,15 +282,17 @@ function getLevelQuestionPool(){
 }
 function takeCategoryQuestions(categoryName,count){
  const pool=getAllQuestions().filter(q=>q.cat===categoryName);
- const picked=[];
- if(!pool.length) return picked;
- while(picked.length<count){
-  picked.push(...shuffleList(pool));
- }
- return picked.slice(0,count);
+ return shuffleList(pool).slice(0,count);
 }
 function buildQuestionsFromPlan(plan){
- const plannedQuestions=plan.flatMap(section=>takeCategoryQuestions(section.name,section.count));
+ const used=new Set();
+ const plannedQuestions=[];
+ plan.forEach(section=>{
+  takeCategoryQuestions(section.name,section.count).forEach(question=>{
+   const key=[question.cat,question.q,...question.choices].map(value=>String(value).trim().toLowerCase()).join("|");
+   if(!used.has(key)){used.add(key);plannedQuestions.push(question)}
+  });
+ });
  return shuffleList(plannedQuestions).map(randomizeQuestion);
 }
 function buildRandomizedQuestions(count=DIAGNOSTIC_QUESTION_COUNT){
@@ -425,12 +486,13 @@ function showHistoryDetail(index){
 }
 function renderWrongItems(wrongItems){
  if(!wrongItems.length) return '<div class="status-banner status-good">No wrong answers in this attempt. Keep practicing for consistency.</div>';
- return `<div class="wrong-list">${wrongItems.map(item=>`<div class="review-item"><div class="review-q">${item.question}</div><div class="review-grid"><div class="review-box"><small>Correct answer</small><p>${item.correctAnswer}</p></div><div class="review-box tech"><small>Technique to review</small><p>${item.technique}</p></div></div></div>`).join("")}</div>`;
+ return `<div class="wrong-list">${wrongItems.map(item=>`<div class="review-item"><div class="review-q">${item.question}</div><div class="review-grid"><div class="review-box"><small>Your answer</small><p class="wrong">${item.userAnswer || "No answer"}</p></div><div class="review-box"><small>Correct answer</small><p class="correct">${item.correctAnswer}</p></div><div class="review-box tech"><small>Technique to review</small><p>${item.technique}</p></div></div></div>`).join("")}</div>`;
 }
 function saveAttemptHistory(score){
  const wrongItems=activeQuestions.map((q,i)=>({q,i,user:answers[i]})).filter(item=>item.user!==item.q.a).map(item=>({
   question:item.q.q,
   skill:item.q.skill,
+  userAnswer:item.user===undefined?"No answer":item.q.choices[item.user],
   correctAnswer:item.q.choices[item.q.a],
   technique:item.q.tech
  }));
@@ -622,6 +684,8 @@ function showLearnerDashboard(){
  if(greeting) greeting.textContent="Welcome back, "+email;
  const weak=document.getElementById('memberWeakSkill');
  if(weak) weak.textContent=lastWeakSkill || "Mixed";
+ const bank=document.getElementById('memberQuestionBank');
+ if(bank) bank.textContent=getAllQuestions().length.toLocaleString()+"+";
  renderCoverageDetails();
  renderHistory();
  showScreen('dashboard');
