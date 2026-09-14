@@ -94,7 +94,95 @@ const questions = [
  {cat:"Clerical Ability",q:"If office hours are 8:00 AM to 5:00 PM with 1 hour lunch break, how many working hours are there?",choices:["7 hours","8 hours","9 hours","10 hours"],a:1,skill:"Clerical Computation",tech:"8 AM to 5 PM is 9 hours. Subtract 1 hour lunch break = 8 working hours."},
  {cat:"General Information",q:"Which value is emphasized by arriving on time and completing duties promptly?",choices:["Punctuality","Secrecy","Favoritism","Extravagance"],a:0,skill:"Work Values",tech:"Arriving on time and prompt work point to punctuality."}
 ];
-
+let generatedQuestions = [];
+function answerChoice(correct,wrongChoices){
+ const choices=[correct,...wrongChoices].map(String);
+ return {choices,a:0};
+}
+function addGeneratedQuestion(list,cat,q,correct,wrongChoices,skill,tech){
+ const item=answerChoice(correct,wrongChoices);
+ if(new Set(item.choices).size<4) return;
+ list.push({cat,q,choices:item.choices,a:item.a,skill,tech});
+}
+function generateGeneratedQuestions(){
+ const list=[];
+ const vocabPairs=[
+  ["abundant","plentiful","scarce","tiny","weak"],["accurate","correct","careless","late","ordinary"],["brief","short","lengthy","formal","difficult"],["cautious","careful","reckless","quick","silent"],["diligent","hardworking","lazy","confused","angry"],["essential","necessary","optional","rare","distant"],["fragile","breakable","strong","bright","simple"],["generous","giving","selfish","strict","fearful"],["hostile","unfriendly","helpful","calm","honest"],["impartial","fair","biased","slow","secret"],["legible","readable","hidden","verbal","complex"],["mandatory","required","optional","informal","private"],["obsolete","outdated","modern","active","legal"],["prudent","wise","careless","noisy","temporary"],["rapid","fast","slow","minor","formal"],["sufficient","enough","lacking","empty","late"],["transparent","open","secretive","heavy","ancient"],["urgent","immediate","delayed","minor","unclear"]
+ ];
+ for(let r=0;r<35;r++){
+  vocabPairs.forEach(([word,correct,...wrong])=>{
+   addGeneratedQuestion(list,"Verbal Ability","Choose the word closest in meaning to "+word.toUpperCase()+".",correct,wrong,"Vocabulary","Match the core meaning of the word, then eliminate choices with the opposite or unrelated meaning.");
+   addGeneratedQuestion(list,"Verbal Ability","Choose the word opposite in meaning to "+word.toUpperCase()+".",wrong[0],[correct,wrong[1],wrong[2]],"Vocabulary","For antonyms, first define the word, then choose the clearest opposite.");
+  });
+ }
+ const subjects=["The clerk","The officers","Neither the supervisor nor the assistants","Each applicant","The documents","The committee"];
+ const verbs=[["is","are","were","have been"],["files","file","filing","filed"],["was","were","are","have"],["submits","submit","submitting","were"],["are","is","was","has"],["meets","meet","meeting","were"]];
+ subjects.forEach((subject,i)=>{
+  for(let r=0;r<120;r++) addGeneratedQuestion(list,"Verbal Ability",subject+" ___ required to follow office procedures.",verbs[i][0],verbs[i].slice(1),"Grammar","Check whether the subject is singular or plural, then choose the verb that agrees with it.");
+ });
+ const rcScenarios=[
+  ["The office reduced paper use after forms were moved online.","What was the effect of moving forms online?","Paper use decreased",["Paper use increased","Forms were banned","Employees stopped reporting"]],
+  ["Mina reviewed each instruction before answering because she wanted to avoid careless mistakes.","What can be inferred about Mina?","She was careful",["She ignored instructions","She was absent","She guessed quickly"]],
+  ["The agency opened early service windows to help applicants who work during the day.","Why were early service windows opened?","To help working applicants",["To close offices early","To reduce services","To avoid applicants"]],
+  ["The memo says employees must submit reports every Friday to keep records updated.","Why are reports submitted every Friday?","To keep records updated",["To delay records","To cancel reporting","To avoid supervisors"]]
+ ];
+ for(let r=0;r<180;r++) rcScenarios.forEach(([passage,q,correct,wrong])=>addGeneratedQuestion(list,"Verbal Ability","Reading Comprehension: "+passage+" "+q,correct,wrong,"Reading Comprehension","Use Q-R-A: read the question first, scan for the exact clue, then answer only from stated or clearly implied information."));
+ for(let base=60;base<=990;base+=10){
+  [5,10,15,20,25,30,40,50].forEach(percent=>{
+   const correct=base*percent/100;
+   addGeneratedQuestion(list,"Numerical Ability",percent+"% of "+base+" is:",correct,[correct+5,Math.max(0,correct-5),correct+10],"Percentage","Convert the percent to a fraction or decimal, then multiply by the base number.");
+  });
+ }
+ for(let price=200;price<=5000;price+=100){
+  [5,10,15,20,25,30].forEach(discount=>{
+   const correct=price-(price*discount/100);
+   addGeneratedQuestion(list,"Numerical Ability","A ₱"+price+" item is discounted by "+discount+"%. What is the sale price?","₱"+correct,["₱"+(correct+50),"₱"+(Math.max(0,correct-50)),"₱"+(price+discount)],"Percentage","Find the discount amount first, then subtract it from the original price.");
+  });
+ }
+ for(let a=2;a<=40;a++) for(let b=2;b<=12;b++){
+  const total=a*b;
+  addGeneratedQuestion(list,"Numerical Ability","If "+a+" items cost ₱"+total*5+", how much do "+b+" items cost at the same rate?","₱"+(b*5),["₱"+(a*5),"₱"+(total),"₱"+(b*10)],"Ratio and Proportion","Find the unit price first, then multiply by the required number of items.");
+ }
+ for(let start=1;start<=90;start++) for(let step=2;step<=12;step++){
+  const seq=[start,start+step,start+step*2,start+step*3];
+  addGeneratedQuestion(list,"Numerical Ability","Find the next number: "+seq.join(", ") + ", ___",start+step*4,[start+step*3,start+step*5,start+step*4+1],"Number Sequence","Look for the constant difference, then continue the pattern.");
+ }
+ const names=["Ana","Ben","Carlo","Dana","Elena","Felix","Gina","Hector","Iris","Jose","Kara","Leo"];
+ for(let i=0;i<names.length-3;i++){
+  const a=names[i],b=names[i+1],c=names[i+2],d=names[i+3];
+  for(let r=0;r<80;r++) addGeneratedQuestion(list,"Analytical Ability",d+" is older than "+a+". "+a+" is older than "+b+". "+b+" is older than "+c+". Who is the oldest?",d,[a,b,c],"Ordering Logic","Write the relationships as a chain. The person at the far left is the oldest.");
+ }
+ const roles=["clerks","teachers","nurses","drivers","inspectors","cashiers","analysts","engineers"];
+ roles.forEach(role=>{
+  for(let r=0;r<140;r++) addGeneratedQuestion(list,"Analytical Ability","All "+role+" are employees. All employees follow office rules. Therefore:","All "+role+" follow office rules",["No "+role+" follow office rules","All employees are "+role,"Some office rules are employees"],"Syllogism","Follow the logic chain from the first group to the second group to the final condition.");
+ });
+ const patternLetters=["A","B","C","D","E","F","G","H","I","J","K","L","M"];
+ for(let i=0;i<patternLetters.length-6;i++) for(let step=1;step<=3;step++){
+  const seq=[0,1,2,3].map(n=>patternLetters[i+n*step]);
+  const correct=patternLetters[i+4*step];
+  if(correct) addGeneratedQuestion(list,"Analytical Ability","Complete the pattern: "+seq.join(", ") + ", ___",correct,[patternLetters[i+4*step-1],patternLetters[i+4*step+1]||"Z",patternLetters[i]],"Pattern Recognition","Identify how many letters are skipped each time, then continue the same movement.");
+ }
+ const laws=[
+  ["RA 6713","ethical standards for public officials and employees"],["Data Privacy Act","protection of personal information"],["Bill of Rights","basic rights and protections of citizens"],["Ombudsman","investigation of complaints against public officials"],["1987 Constitution","highest law of the Philippines"],["Public office","a public trust"],["Judicial branch","interprets laws"],["Legislative branch","makes laws"],["Executive branch","enforces laws"]
+ ];
+ for(let r=0;r<150;r++) laws.forEach(([term,correct])=>addGeneratedQuestion(list,"General Information",term+" is mainly about:",correct,["private business profit","personal campaign promotion","sports tournament rules"],"General Information","Connect the term to its public service meaning and eliminate unrelated choices."));
+ const surnames=["Santos","Reyes","Rivera","Ramos","Dela Cruz","Delos Santos","Mendoza","Garcia","Aquino","Bautista","Cruz","Domingo","Flores","Lopez","Navarro","Villanueva"];
+ for(let i=0;i<surnames.length-3;i++){
+  const group=[surnames[i],surnames[i+1],surnames[i+2],surnames[i+3]];
+  const sorted=[...group].sort((a,b)=>a.localeCompare(b));
+  addGeneratedQuestion(list,"Clerical Ability","Arrange alphabetically: "+group.join(", ") + ".",sorted.join(", "),[[group[1],group[0],group[2],group[3]].join(", "),[group[3],group[2],group[1],group[0]].join(", "),[group[0],group[2],group[1],group[3]].join(", ")],"Alphabetical Filing","Compare surnames letter by letter. File names in A-to-Z order.");
+ }
+ for(let code=1000;code<=9999;code++){
+  if(code%3!==0) continue;
+  const text="CSC-"+code;
+  addGeneratedQuestion(list,"Clerical Ability","Which pair is exactly the same?",text+" / "+text,[text+" / CSC-"+(code+1),"C5C-"+code+" / "+text,text+" / CSC-"+String(code).split("").reverse().join("")],"Checking and Comparing","Compare each letter and number from left to right. One changed character makes the pair incorrect.");
+ }
+ return shuffleList(list);
+}
+function getAllQuestions(){
+ if(!generatedQuestions.length) generatedQuestions=generateGeneratedQuestions();
+ return [...questions,...generatedQuestions];
+}
 function shuffleList(items){
  const shuffled=[...items];
  for(let i=shuffled.length-1;i>0;i--){
@@ -116,10 +204,10 @@ function getExamCoverage(){
 }
 function getLevelQuestionPool(){
  const allowedCategories=getExamCoverage().categories.map(category=>category.name);
- return questions.filter(q=>allowedCategories.includes(q.cat));
+ return getAllQuestions().filter(q=>allowedCategories.includes(q.cat));
 }
 function takeCategoryQuestions(categoryName,count){
- const pool=questions.filter(q=>q.cat===categoryName);
+ const pool=getAllQuestions().filter(q=>q.cat===categoryName);
  const picked=[];
  if(!pool.length) return picked;
  while(picked.length<count){
@@ -468,6 +556,7 @@ function showToast(message){
 }
 document.addEventListener('DOMContentLoaded',initAdminPage);
 document.addEventListener('DOMContentLoaded',initCustomerPage);
+
 
 
 
